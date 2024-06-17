@@ -76,10 +76,6 @@ You need to set the paths and encryption key in the code:
 
 If you would like to contribute to this project, please fork the repository and create a pull request. For major changes, please open an issue to discuss what you would like to change.
 
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for more information.
-
 ---
 
 **Disclaimer**: This project is created for educational purposes only. The creator does not hold any responsibility for any misuse of this code.

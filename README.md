@@ -78,4 +78,4 @@ If you would like to contribute to this project, please fork the repository and 
 
 ---
 
-**Disclaimer**: This project is created for educational purposes only. The creator does not hold any responsibility for any misuse of this code.
+**Disclaimer**: This project is created for educational purposes only.

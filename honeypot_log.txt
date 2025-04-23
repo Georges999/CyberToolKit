@@ -668,3 +668,99 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
 
 2025-04-23 19:47:30.664 [INFO] HTTP request received from 127.0.0.1:61588
 2025-04-23 19:47:30.665 [DEBUG] Closed connection from: 127.0.0.1:61588
+2025-04-23 19:51:32.121 [DEBUG] Closed connection from: 127.0.0.1:61594
+2025-04-23 19:51:40.878 [INFO] Connection received from: 127.0.0.1:61656 (Count: 16)
+2025-04-23 19:51:48.924 [DETAIL] Request from 127.0.0.1:61656 at 2025-04-23 19:51:48
+-------- RAW REQUEST --------
+GET / HTTP/1.1
+Host: localhost:2121
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
+----------------------------
+Method: GET
+Path: /
+Version: HTTP/1.1
+Headers:
+  Host: localhost:2121
+Host: localhost:2121
+  Connection: keep-alive
+  sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "Windows"
+  Upgrade-Insecure-Requests: 1
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+  Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+  Sec-Fetch-Site: none
+  Sec-Fetch-Mode: navigate
+  Sec-Fetch-User: ?1
+  Sec-Fetch-Dest: document
+  Accept-Encoding: gzip, deflate, br, zstd
+  Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
+!!! POTENTIAL ATTACK DETECTED !!!
+
+2025-04-23 19:51:48.925 [INFO] HTTP request received from 127.0.0.1:61656
+2025-04-23 19:51:48.926 [DEBUG] Closed connection from: 127.0.0.1:61656
+2025-04-23 19:51:49.274 [INFO] Connection received from: 127.0.0.1:61658 (Count: 17)
+2025-04-23 19:52:55.553 [DEBUG] Closed connection from: 127.0.0.1:61658
+2025-04-23 19:52:55.950 [INFO] Connection received from: 127.0.0.1:61714 (Count: 18)
+2025-04-23 19:53:42.847 [DETAIL] Request from 127.0.0.1:61714 at 2025-04-23 19:53:42
+-------- RAW REQUEST --------
+GET /wp-admin HTTP/1.1
+Host: localhost:2121
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
+----------------------------
+Method: GET
+Path: /wp-admin
+Version: HTTP/1.1
+Headers:
+  Host: localhost:2121
+Host: localhost:2121
+  Connection: keep-alive
+  sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "Windows"
+  Upgrade-Insecure-Requests: 1
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+  Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+  Sec-Fetch-Site: none
+  Sec-Fetch-Mode: navigate
+  Sec-Fetch-User: ?1
+  Sec-Fetch-Dest: document
+  Accept-Encoding: gzip, deflate, br, zstd
+  Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
+!!! POTENTIAL ATTACK DETECTED !!!
+
+2025-04-23 19:53:42.848 [INFO] HTTP request received from 127.0.0.1:61714
+2025-04-23 19:53:42.850 [DEBUG] Closed connection from: 127.0.0.1:61714
+2025-04-23 19:53:43.206 [INFO] Connection received from: 127.0.0.1:61735 (Count: 19)
+2025-04-23 19:55:56.655 [INFO] Stopping honeypot...
+2025-04-23 19:55:56.656 [INFO] Honeypot stopping as requested.
+2025-04-23 19:55:56.657 [DEBUG] Handling for 127.0.0.1:61735 cancelled.
+2025-04-23 19:55:56.657 [DEBUG] Closed connection from: 127.0.0.1:61735
+2025-04-23 19:55:57.662 [INFO] Honeypot stopped. Connection statistics:
+2025-04-23 19:55:57.672 [INFO] IP: 127.0.0.1, Connection attempts: 19

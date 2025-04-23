@@ -508,3 +508,83 @@ User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML,
   Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
 !!! POTENTIAL ATTACK DETECTED !!!
 
+2025-04-23 19:51:48.924 [DETAIL] Request from 127.0.0.1:61656 at 2025-04-23 19:51:48
+-------- RAW REQUEST --------
+GET / HTTP/1.1
+Host: localhost:2121
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
+----------------------------
+Method: GET
+Path: /
+Version: HTTP/1.1
+Headers:
+  Host: localhost:2121
+Host: localhost:2121
+  Connection: keep-alive
+  sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "Windows"
+  Upgrade-Insecure-Requests: 1
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+  Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+  Sec-Fetch-Site: none
+  Sec-Fetch-Mode: navigate
+  Sec-Fetch-User: ?1
+  Sec-Fetch-Dest: document
+  Accept-Encoding: gzip, deflate, br, zstd
+  Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
+!!! POTENTIAL ATTACK DETECTED !!!
+
+2025-04-23 19:53:42.847 [DETAIL] Request from 127.0.0.1:61714 at 2025-04-23 19:53:42
+-------- RAW REQUEST --------
+GET /wp-admin HTTP/1.1
+Host: localhost:2121
+Connection: keep-alive
+sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+sec-ch-ua-mobile: ?0
+sec-ch-ua-platform: "Windows"
+Upgrade-Insecure-Requests: 1
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+Sec-Fetch-Site: none
+Sec-Fetch-Mode: navigate
+Sec-Fetch-User: ?1
+Sec-Fetch-Dest: document
+Accept-Encoding: gzip, deflate, br, zstd
+Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
+----------------------------
+Method: GET
+Path: /wp-admin
+Version: HTTP/1.1
+Headers:
+  Host: localhost:2121
+Host: localhost:2121
+  Connection: keep-alive
+  sec-ch-ua: "Google Chrome";v="135", "Not-A.Brand";v="8", "Chromium";v="135"
+  sec-ch-ua-mobile: ?0
+  sec-ch-ua-platform: "Windows"
+  Upgrade-Insecure-Requests: 1
+  User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+  Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+  Sec-Fetch-Site: none
+  Sec-Fetch-Mode: navigate
+  Sec-Fetch-User: ?1
+  Sec-Fetch-Dest: document
+  Accept-Encoding: gzip, deflate, br, zstd
+  Accept-Language: en-US,en;q=0.9,ar;q=0.8,fr;q=0.7
+!!! POTENTIAL ATTACK DETECTED !!!
+

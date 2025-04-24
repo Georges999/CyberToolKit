@@ -263,19 +263,111 @@ namespace CyberUtils
                         SelectWorkingDirectory();
                         break;
                         
-                    case "9": // Packet Sniffer
-                        if (_configuration != null)
-                        {
-                            var sec = _configuration.GetSection("PacketSniffer");
-                            string iface = sec["InterfaceName"] ?? "Ethernet";
-                            int duration = int.Parse(sec["CaptureDurationMs"] ?? "5000");
-                            new PacketSnifferService(iface, duration).Run();
-                        }
-                        else
-                        {
-                            PrintError("Configuration not loaded properly");
-                        }
+                   case "9": // Packet Sniffer
+    if (_configuration != null)
+    {
+        var sec = _configuration.GetSection("PacketSniffer");
+        string iface = sec["InterfaceName"] ?? "Ethernet";
+        int duration = int.Parse(sec["CaptureDurationMs"] ?? "5000");
+        
+        Console.WriteLine("\n=== Network Packet Sniffer ===");
+        Console.WriteLine("1. Quick scan (default settings)");
+        Console.WriteLine("2. Full scan with website tracking");
+        Console.WriteLine("3. Choose interface and settings");
+         Console.WriteLine("4. Monitor all WiFi network devices");
+        Console.Write("\nSelect option: ");
+        
+        string snifferOption = Console.ReadLine() ?? "1";
+        
+        switch (snifferOption)
+        {
+            case "2":
+                // Full website tracking
+                var captureFile = Path.Combine(Directory.GetCurrentDirectory(), "capture.pcap");
+                var sniffer = new PacketSnifferService(iface, 30000, captureFile);
+                sniffer.Run();
+                break;
+                
+            case "3":
+                // List available interfaces
+                Console.WriteLine("Listing available interfaces...");
+                try
+                {
+                    var devices = SharpPcap.CaptureDeviceList.Instance;
+                    if (devices.Count == 0)
+                    {
+                        Console.WriteLine("No capture devices found. Please install Npcap.");
                         break;
+                    }
+                    
+                    Console.WriteLine("\nAvailable interfaces:");
+                    for (int i = 0; i < devices.Count; i++)
+                    {
+                        Console.WriteLine($"{i+1}. {devices[i].Description}");
+                    }
+                    
+                    Console.Write("\nSelect interface (number): ");
+                    if (int.TryParse(Console.ReadLine(), out int devNum) && devNum > 0 && devNum <= devices.Count)
+                    {
+                        string selectedIface = devices[devNum - 1].Name;
+                        
+                        Console.Write("Enter capture duration (seconds): ");
+                        if (int.TryParse(Console.ReadLine(), out int capDuration) && capDuration > 0)
+                        {
+                            Console.Write("Save packets to file? (y/n): ");
+                            bool saveToFile = Console.ReadLine()?.ToLower() == "y";
+                            
+                            string? capFile = saveToFile ? 
+                                Path.Combine(Directory.GetCurrentDirectory(), "capture.pcap") : null;
+                            
+                            var customSniffer = new PacketSnifferService(selectedIface, capDuration * 1000, capFile);
+                            customSniffer.Run();
+                        }
+                    }
+                }
+                catch (DllNotFoundException)
+                {
+                    PrintError("Missing packet capture drivers. Please install Npcap.");
+                }
+                catch (Exception ex)
+                {
+                    PrintError($"Error: {ex.Message}");
+                }
+                break;
+
+                  case "4":
+                // WiFi monitoring mode
+                PrintWarning("WiFi monitoring captures data about connected devices");
+                PrintWarning("Note that full packet contents between other devices will be encrypted");
+                Console.WriteLine("Enter monitoring duration in seconds (10-120): ");
+                
+                if (int.TryParse(Console.ReadLine(), out int monitorDuration) && 
+                    monitorDuration >= 10 && monitorDuration <= 120)
+                {
+                    
+                    var monitorSniffer = new PacketSnifferService(iface, monitorDuration * 1000);
+                    monitorSniffer.RunWifiMonitor(captureAllDevices: true);
+                }
+                else
+                {
+                    Console.WriteLine("Using default duration of 30 seconds");
+                    var monitorSniffer = new PacketSnifferService(iface, 30000);
+                    monitorSniffer.RunWifiMonitor(captureAllDevices: true);
+                }
+                break;
+                
+            default:
+                // Quick scan
+                var quickSniffer = new PacketSnifferService(iface, duration);
+                quickSniffer.Run();
+                break;
+        }
+    }
+    else
+    {
+        PrintError("Configuration not loaded properly");
+    }
+    break;
                         
                     case "10": // WiFi Honeypot
                         if (_configuration != null)

@@ -25,7 +25,7 @@ namespace CyberUtils
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             
             // Create log directory if it doesn't exist
-            string logDir = Path.GetDirectoryName(_settings.LogFilePath);
+            string? logDir = Path.GetDirectoryName(_settings.LogFilePath);
             if (!string.IsNullOrEmpty(logDir) && !Directory.Exists(logDir))
             {
                 Directory.CreateDirectory(logDir);

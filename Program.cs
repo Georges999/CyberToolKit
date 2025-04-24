@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration; // Required for ConfigurationBuilder
+using CyberUtils.Modules;
 
 namespace CyberUtils
 {
@@ -201,6 +202,54 @@ namespace CyberUtils
                             PrintError("Configuration not loaded properly");
                         }
                         break;
+
+                      case "10": // WiFi Honeypot
+    if (_configuration != null)
+    {
+        var wifiSettings = new CyberUtils.Modules.WifiHoneypotSettings
+        {
+            LogFilePath = "wifi_honeypot.log",
+            FakeAccessPointSettings = new CyberUtils.Modules.FakeAccessPointSettings
+            {
+                Ssid = "Free_Public_WiFi",
+                Channel = 6,
+                SecurityType = "WPA2",
+                Password = "password123" // Use a strong password
+            },
+            NetworkSettings = new CyberUtils.Modules.NetworkSettings
+            {
+                DhcpIpRange = "192.168.100.100-200",
+                SubnetMask = "255.255.255.0",
+                Gateway = "192.168.100.1"
+            },
+            CaptureSettings = new CyberUtils.Modules.CaptureSettings
+            {
+                InterfaceName = "Wi-Fi" // Use your WiFi interface name
+            }
+        };
+        
+        var wifiHoneypot = new CyberUtils.Modules.RealWifiHoneypotModule(wifiSettings);
+        
+        Console.WriteLine("\nWiFi Honeypot Control");
+        Console.WriteLine("1. Start WiFi Honeypot");
+        Console.WriteLine("2. Stop WiFi Honeypot");
+        Console.WriteLine("0. Back to main menu");
+        Console.Write("Enter choice: ");
+        
+        string? subChoice = Console.ReadLine();
+        switch (subChoice)
+        {
+            case "1":
+                Console.WriteLine("Starting WiFi Honeypot...");
+                await wifiHoneypot.StartAsync();
+                break;
+            case "2":
+                Console.WriteLine("Stopping WiFi Honeypot...");
+                await wifiHoneypot.StopAsync();
+                break;
+        }
+    }
+    break;
                     case "0":
                     case "q":
                     case "exit":
@@ -279,6 +328,7 @@ namespace CyberUtils
             Console.WriteLine(" 8. Select Working Directory");
             Console.WriteLine("--- Advanced Tools ---");
             Console.WriteLine(" 9. Packet Sniffer");
+            Console.WriteLine("10. WiFi Honeypot");
             Console.WriteLine("-----------------------------");
             Console.WriteLine(" 0. Exit");
             Console.WriteLine("=============================");

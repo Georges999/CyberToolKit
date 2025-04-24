@@ -2,6 +2,19 @@
   "version": 3,
   "targets": {
     "net9.0": {
+      "ManagedNativeWifi/2.7.1": {
+        "type": "package",
+        "compile": {
+          "lib/net8.0/ManagedNativeWifi.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net8.0/ManagedNativeWifi.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "Microsoft.Extensions.Configuration/9.0.4": {
         "type": "package",
         "dependencies": {
@@ -212,6 +225,19 @@
           "lib/netstandard2.0/SharpPcap.dll": {}
         }
       },
+      "SimpleWifi.netstandard/2.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.0/SimpleWifi.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/netstandard2.0/SimpleWifi.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "System.Memory/4.5.5": {
         "type": "package",
         "compile": {
@@ -265,6 +291,21 @@
     }
   },
   "libraries": {
+    "ManagedNativeWifi/2.7.1": {
+      "sha512": "OuP/gRO9IVKSfRj847RLt2SiLnr+np6areSP25INTW4DkzwItBjbzYY/L/76CZnEx//KmDv5RLHSE81oWCLVGg==",
+      "type": "package",
+      "path": "managednativewifi/2.7.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/net8.0/ManagedNativeWifi.dll",
+        "lib/net8.0/ManagedNativeWifi.xml",
+        "lib/netstandard2.0/ManagedNativeWifi.dll",
+        "lib/netstandard2.0/ManagedNativeWifi.xml",
+        "managednativewifi.2.7.1.nupkg.sha512",
+        "managednativewifi.nuspec"
+      ]
+    },
     "Microsoft.Extensions.Configuration/9.0.4": {
       "sha512": "KIVBrMbItnCJDd1RF4KEaE8jZwDJcDUJW5zXpbwQ05HNYTK1GveHxHK0B3SjgDJuR48GRACXAO+BLhL8h34S7g==",
       "type": "package",
@@ -569,6 +610,20 @@
         "sharppcap.nuspec"
       ]
     },
+    "SimpleWifi.netstandard/2.0.0": {
+      "sha512": "lJuk2zjX4snKbrxfDnDEwYb8dTFR/UbyMb9umljexOP1nuXjdYXNX3T2+zrdxZue359ZqvHC8aAAGkgWS6PFFw==",
+      "type": "package",
+      "path": "simplewifi.netstandard/2.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE.txt",
+        "lib/netstandard2.0/SimpleWifi.dll",
+        "lib/netstandard2.0/SimpleWifi.xml",
+        "simplewifi.netstandard.2.0.0.nupkg.sha512",
+        "simplewifi.netstandard.nuspec"
+      ]
+    },
     "System.Memory/4.5.5": {
       "sha512": "XIWiDvKPXaTveaB7HVganDlOCRoj03l+jrwNvcge/t8vhGYKvqV+dMv6G4SAX2NoNmN0wZfVPTAlFwZcZvVOUw==",
       "type": "package",
@@ -659,12 +714,14 @@
   },
   "projectFileDependencyGroups": {
     "net9.0": [
+      "ManagedNativeWifi >= 2.7.1",
       "Microsoft.Extensions.Configuration >= 9.0.4",
       "Microsoft.Extensions.Configuration.Binder >= 9.0.4",
       "Microsoft.Extensions.Configuration.Json >= 9.0.4",
       "PacketDotNet >= 1.4.8",
       "SharpAESCrypt >= 2.0.3",
-      "SharpPcap >= 6.3.0"
+      "SharpPcap >= 6.3.0",
+      "SimpleWifi.netstandard >= 2.0.0"
     ]
   },
   "packageFolders": {
@@ -717,6 +774,10 @@
       "net9.0": {
         "targetAlias": "net9.0",
         "dependencies": {
+          "ManagedNativeWifi": {
+            "target": "Package",
+            "version": "[2.7.1, )"
+          },
           "Microsoft.Extensions.Configuration": {
             "target": "Package",
             "version": "[9.0.4, )"
@@ -740,6 +801,10 @@
           "SharpPcap": {
             "target": "Package",
             "version": "[6.3.0, )"
+          },
+          "SimpleWifi.netstandard": {
+            "target": "Package",
+            "version": "[2.0.0, )"
           }
         },
         "imports": [

@@ -1,1 +1,9 @@
 2025-04-23 21:14:09 - ERROR: Administrator privileges are required to create a WiFi access point
+2025-04-23 21:15:28 - Starting Wi-Fi honeypot module...
+2025-04-23 21:15:28 - Creating access point with SSID: Free_Public_WiFi
+2025-04-23 21:15:29 - Your WiFi adapter doesn't support hosted networks
+2025-04-23 21:15:29 - Failed to start access point. Check your WiFi adapter.
+2025-04-23 21:19:20 - Starting Wi-Fi honeypot module...
+2025-04-23 21:19:20 - Creating access point with SSID: Free_Public_WiFi
+2025-04-23 21:19:21 - Your WiFi adapter doesn't support hosted networks
+2025-04-23 21:19:21 - Failed to start access point. Check your WiFi adapter.

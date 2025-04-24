@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security; // For SecurityException
-using SharpAESCrypt; 
+using System.Security.Cryptography;
+using System.Text;
 
 namespace CyberUtils
 {
@@ -78,236 +79,304 @@ namespace CyberUtils
             }
         }
 
+public void DecryptFiles()
+{
+    Console.WriteLine($"\n--- Decrypting Files in [{_settings.TargetDirectory}] ---");
+    
+    // Counters for reporting
+    int totalFiles = 0;
+    int successCount = 0;
+    int errorCount = 0;
+    
+    try
+    {
+        // Get all encrypted files in the directory (recursively)
+        var encryptedFiles = GetAllFilesRecursive()
+            .Where(f => Path.GetExtension(f).Equals(EncryptedFileExtension, StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        
+        if (encryptedFiles.Count == 0)
+        {
+            Console.WriteLine("No encrypted files found.");
+            return;
+        }
+        
+        // Process each file
+        foreach (string filePath in encryptedFiles)
+        {
+            totalFiles++;
+            
+            try
+            {
+                Console.WriteLine($"Processing [{totalFiles}]: {filePath}");
+                
+                // Generate output filename (remove .cbf extension)
+                string outputFileName = Path.GetFileNameWithoutExtension(filePath);
+                string decryptedFilePath = Path.Combine(
+                    Path.GetDirectoryName(filePath) ?? _settings.TargetDirectory,
+                    outputFileName);
+                
+                Console.WriteLine($"  Decrypting -> {Path.GetFileName(decryptedFilePath)}");
+                
+                // Decrypt the file
+                DecryptFile(_settings.EncryptionKey, filePath, decryptedFilePath);
+// Delete encrypted file only after successful decryption
+                File.Delete(filePath);
+                
+                successCount++;
+            }
+            catch (Exception ex)
+            {
+                errorCount++;
+                PrintOperationError($"Failed to decrypt file", filePath, ex);
+            }
+        }
+        
+        // Final report
+        Console.WriteLine($"\n--- Decryption Complete ---");
+        Console.WriteLine($"Total files processed: {totalFiles}");
+        Console.WriteLine($"Successfully decrypted: {successCount}");
+        Console.WriteLine($"Errors encountered: {errorCount}");
+    }
+    catch (Exception ex)
+    {
+        PrintOperationError($"An error occurred during decryption process", _settings.TargetDirectory, ex);
+        throw;
+    }
+}
+
+public void EncryptFiles()
+{
+    Console.WriteLine($"\n--- Encrypting Files in [{_settings.TargetDirectory}] with extension '{EncryptedFileExtension}' ---");
+    
+    // Counters for reporting
+    int totalFiles = 0;
+    int successCount = 0;
+    int errorCount = 0;
+    
+    try
+    {
+        // Get all files in the directory (recursively)
+        var allFiles = GetAllFilesRecursive();
+        
+        // Process each file
+        foreach (string filePath in allFiles)
+        {
+            totalFiles++;
+            
+            // Skip files that are already encrypted
+            if (Path.GetExtension(filePath).Equals(EncryptedFileExtension, StringComparison.OrdinalIgnoreCase))
+            {
+                Console.WriteLine($"Skipping already encrypted file: {filePath}");
+                continue;
+            }
+            
+            try
+            {
+                Console.WriteLine($"Processing [{totalFiles}]: {filePath}");
+                
+                string originalFileName = Path.GetFileName(filePath);
+                string originalFileNameBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(originalFileName))
+                  .Replace('/', '_').Replace('+', '-').Replace("=", ""); // Make it filesystem-safe
+                string encryptedFilePath = Path.Combine(
+                Path.GetDirectoryName(filePath) ?? _settings.TargetDirectory,
+                 originalFileNameBase64 + EncryptedFileExtension);
+                
+                Console.WriteLine($"  Encrypting -> {Path.GetFileName(encryptedFilePath)}");
+                
+                // Encrypt the file
+                EncryptFile(_settings.EncryptionKey, filePath, encryptedFilePath);
+                
+                // Delete original file only after successful encryption
+                File.Delete(filePath);
+                
+                successCount++;
+            }
+            catch (Exception ex)
+            {
+                errorCount++;
+                PrintOperationError($"Failed to encrypt file", filePath, ex);
+            }
+        }
+        
+        // Final report
+        Console.WriteLine($"\n--- Encryption Complete ---");
+        Console.WriteLine($"Total files processed: {totalFiles}");
+        Console.WriteLine($"Successfully encrypted: {successCount}");
+        Console.WriteLine($"Errors encountered: {errorCount}");
+    }
+    catch (Exception ex)
+    {
+        PrintOperationError($"An error occurred during encryption process", _settings.TargetDirectory, ex);
+        throw;
+    }
+}
 
         // --- ENCRYPTOR (Enhanced Version) ---
-        public void EncryptFiles()
+private const int KeySize = 256;
+private const int DerivationIterations = 1000;
+
+public void EncryptFile(string password, string sourceFile, string destFile)
+{
+    try
+    {
+        byte[] saltBytes = GenerateRandomSalt();
+        byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+        
+        using (var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, DerivationIterations, HashAlgorithmName.SHA256))
         {
-            Console.WriteLine($"\n--- Encrypting Files in [{_settings.TargetDirectory}] with extension '{EncryptedFileExtension}' ---");
-            string tempDir = GetSafeTempDirectory();
-
-            int processedCount = 0;
-            int encryptedCount = 0;
-            int skippedCount = 0;
-            int errorCount = 0;
-
-            var filesToProcess = GetAllFilesRecursive();
-            if (!filesToProcess.Any())
+            byte[] keyBytes = key.GetBytes(KeySize / 8);
+            using (var aesAlg = Aes.Create())
             {
-                 Console.WriteLine("No files found to process in the target directory.");
-                 return;
+                aesAlg.Key = keyBytes;
+                aesAlg.IV = GenerateRandomIV();
+                
+                using (FileStream fsInput = new FileStream(sourceFile, FileMode.Open, FileAccess.Read))
+                using (FileStream fsOutput = new FileStream(destFile, FileMode.Create))
+                {
+                    // Write the salt and IV to the beginning of the file
+                    fsOutput.Write(BitConverter.GetBytes(saltBytes.Length), 0, 4);
+                    fsOutput.Write(saltBytes, 0, saltBytes.Length);
+                    fsOutput.Write(BitConverter.GetBytes(aesAlg.IV.Length), 0, 4);
+                    fsOutput.Write(aesAlg.IV, 0, aesAlg.IV.Length);
+
+                    // Encrypt
+                    using (CryptoStream cryptoStream = new CryptoStream(
+                        fsOutput, aesAlg.CreateEncryptor(), CryptoStreamMode.Write))
+                    {
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        
+                        while ((bytesRead = fsInput.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            cryptoStream.Write(buffer, 0, bytesRead);
+                        }
+                        
+                        cryptoStream.FlushFinalBlock();
+                    }
+                }
             }
-
-
-            foreach (string sourceFilePath in filesToProcess)
-            {
-                 processedCount++;
-                string targetFilePathWithExt = sourceFilePath + EncryptedFileExtension;
-
-                // 1. Skip already encrypted files (based on extension)
-                if (sourceFilePath.EndsWith(EncryptedFileExtension, StringComparison.OrdinalIgnoreCase))
-                {
-                    Console.WriteLine($"Skipping (already has {EncryptedFileExtension}): {sourceFilePath}");
-                    skippedCount++;
-                    continue;
-                }
-                // Skip if the target encrypted file *already* exists (e.g. from partial run)
-                // This prevents potential overwrite errors if not handled carefully later
-                 if (File.Exists(targetFilePathWithExt))
-                 {
-                    Console.WriteLine($"Skipping (target '{targetFilePathWithExt}' already exists): {sourceFilePath}");
-                    skippedCount++;
-                    continue;
-                 }
-
-
-                string tempEncryptedFile = Path.Combine(tempDir, Path.GetRandomFileName() + EncryptedFileExtension);
-                 string tempVerifyFile = Path.Combine(tempDir, Path.GetRandomFileName() + ".verify");
-
-
-                Console.WriteLine($"Processing [{processedCount}]: {sourceFilePath}");
-
-                try
-                {
-                    // 2. Encrypt original to temporary file
-                    Console.WriteLine($"  Encrypting -> {Path.GetFileName(tempEncryptedFile)}");
-                  SharpAESCrypt.Encrypt(_settings.EncryptionKey, sourceFilePath, tempEncryptedFile);
-
-                    // 3. Verify by decrypting the temporary file
-                    Console.WriteLine($"  Verifying -> {Path.GetFileName(tempVerifyFile)}");
-                     try
-                     {
-                    SharpAESCrypt.Decrypt(_settings.EncryptionKey, tempEncryptedFile, tempVerifyFile);
-                         Console.WriteLine($"  Verification successful.");
-                     }
-                    catch(Exception ex)
-                     {
-                         // If decryption failed (wrong key, corruption), don't proceed!
-                         PrintOperationError($"Verification failed for {sourceFilePath}! Original file will NOT be deleted.", sourceFilePath, ex);
-                        errorCount++;
-                        continue; // Go to finally block, then next file
-                     }
-
-                     // 4. Verification succeeded, now commit the changes
-                    Console.WriteLine($"  Deleting original: {Path.GetFileName(sourceFilePath)}");
-                     File.Delete(sourceFilePath); // Delete the original
-
-                    Console.WriteLine($"  Moving encrypted file to: {Path.GetFileName(targetFilePathWithExt)}");
-                     File.Move(tempEncryptedFile, targetFilePathWithExt); // Move the verified encrypted file
-
-                    encryptedCount++;
-                    Console.WriteLine($" -> Success: {targetFilePathWithExt}");
-                }
-                 catch (FileNotFoundException ex) { HandleFileException(ex, "File not found during operation", sourceFilePath, ref errorCount); }
-                 catch (UnauthorizedAccessException ex) { HandleFileException(ex, "Access Denied", sourceFilePath, ref errorCount); }
-                 catch (SecurityException ex) { HandleFileException(ex, "Security Exception", sourceFilePath, ref errorCount); }
-                 catch (IOException ex) { HandleFileException(ex, "IO Error", sourceFilePath, ref errorCount); }
-                catch (Exception ex) // Catch-all for SharpAESCrypt or other unexpected errors
-                {
-                    errorCount++;
-                    PrintOperationError($"Encryption process failed.", sourceFilePath, ex);
-                }
-                finally
-                {
-                    // 5. Cleanup temporary files reliably
-                    CleanupTempFile(tempEncryptedFile);
-                     CleanupTempFile(tempVerifyFile);
-                 }
-            }
-
-             Console.WriteLine($"--- Encryption Summary ---");
-             Console.WriteLine($"  Total Files Processed: {processedCount}");
-             Console.WriteLine($"  Successfully Encrypted & Verified: {encryptedCount}");
-             Console.WriteLine($"  Skipped (Already Encrypted/Exists): {skippedCount}");
-             Console.WriteLine($"  Errors: {errorCount}");
-             Console.WriteLine($"--------------------------");
         }
+    }
+    catch (Exception ex)
+    {
+        throw new Exception("File encryption failed", ex);
+    }
+}
 
+// Add these exception classes inside FileOperationsService class
+public class WrongPasswordException : Exception
+{
+    public WrongPasswordException(string message) : base(message) { }
+}
 
-        // --- DECRYPTOR (Enhanced Version) ---
-        public void DecryptFiles()
+public class PayloadCorruptedException : Exception
+{
+    public PayloadCorruptedException(string message) : base(message) { }
+}
+
+public void DecryptFile(string password, string sourceFile, string destFile)
+{
+    try
+    {
+        using (FileStream fsInput = new FileStream(sourceFile, FileMode.Open, FileAccess.Read))
         {
-            Console.WriteLine($"\n--- Decrypting Files in [{_settings.TargetDirectory}] with extension '{EncryptedFileExtension}' ---");
-            string tempDir = GetSafeTempDirectory();
+            // Read the salt length
+            byte[] lenBytes = new byte[4];
+            EnsureFullRead(fsInput, lenBytes, 4);
+            int saltLength = BitConverter.ToInt32(lenBytes, 0);
+            
+            // Read the salt
+            byte[] saltBytes = new byte[saltLength];
+            EnsureFullRead(fsInput, saltBytes, saltLength);
 
-             int processedCount = 0;
-            int decryptedCount = 0;
-            int skippedCount = 0; // For non-.cbf files
-            int errorCount = 0;
-
-
-             // Get all files, then filter locally for the specific extension
-             var allFiles = GetAllFilesRecursive();
-            if (!allFiles.Any())
-             {
-                 Console.WriteLine("No files found to process in the target directory.");
-                 return;
-             }
-
-             var filesToDecrypt = allFiles
-                 .Where(f => f.EndsWith(EncryptedFileExtension, StringComparison.OrdinalIgnoreCase))
-                 .ToList(); // Convert to list to avoid issues if collection modified during enumeration (unlikely here but safer)
-
-            skippedCount = allFiles.Count() - filesToDecrypt.Count;
-
-             if (!filesToDecrypt.Any())
-             {
-                Console.WriteLine($"No files with '{EncryptedFileExtension}' extension found to decrypt.");
-                 if(skippedCount > 0) Console.WriteLine($"({skippedCount} other file(s) were skipped)");
-                 return;
-            }
-            if(skippedCount > 0) Console.WriteLine($"({skippedCount} file(s) without {EncryptedFileExtension} extension will be skipped)");
-
-            foreach (string sourceEncryptedFilePath in filesToDecrypt)
+            // Read the IV length
+            EnsureFullRead(fsInput, lenBytes, 4);
+            int ivLength = BitConverter.ToInt32(lenBytes, 0);
+            
+            // Read the IV
+            byte[] iv = new byte[ivLength];
+            EnsureFullRead(fsInput, iv, ivLength);
+            
+            byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
+            
+            using (var key = new Rfc2898DeriveBytes(passwordBytes, saltBytes, DerivationIterations, HashAlgorithmName.SHA256))
             {
-                 processedCount++;
-
-                // Determine the original file name (remove .cbf extension)
-                string originalFilePath = sourceEncryptedFilePath.Substring(0, sourceEncryptedFilePath.Length - EncryptedFileExtension.Length);
-
-                // Prevent overwriting existing files during decryption? Risky. Error out instead.
-                if (File.Exists(originalFilePath))
+                byte[] keyBytes = key.GetBytes(KeySize / 8);
+                using (var aesAlg = Aes.Create())
                 {
-                     PrintOperationError($"Decrypted file '{originalFilePath}' already exists. Skipping decryption to prevent overwrite.", sourceEncryptedFilePath);
-                    errorCount++;
-                    continue;
+                    aesAlg.Key = keyBytes;
+                    aesAlg.IV = iv;
+                    
+                    using (FileStream fsOutput = new FileStream(destFile, FileMode.Create))
+                    using (CryptoStream cryptoStream = new CryptoStream(
+                        fsInput, aesAlg.CreateDecryptor(), CryptoStreamMode.Read))
+                    {
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        
+                        while ((bytesRead = cryptoStream.Read(buffer, 0, buffer.Length)) > 0)
+                        {
+                            fsOutput.Write(buffer, 0, bytesRead);
+                        }
+                    }
                 }
-
-
-                string tempDecryptedFile = Path.Combine(tempDir, Path.GetRandomFileName());
-
-                 Console.WriteLine($"Processing [{processedCount}/{filesToDecrypt.Count}]: {sourceEncryptedFilePath}");
-
-
-                try
-                {
-                    // 1. Decrypt to temporary file
-                    Console.WriteLine($"  Decrypting -> {Path.GetFileName(tempDecryptedFile)}");
-                     SharpAESCrypt.Decrypt(_settings.EncryptionKey, sourceEncryptedFilePath, tempDecryptedFile);
-
-                    // Simple check if temp file was created
-                    if (!File.Exists(tempDecryptedFile))
-                     {
-                        throw new FileNotFoundException("Decryption process did not create the temporary output file.", tempDecryptedFile);
-                     }
-
-                     Console.WriteLine($"  Decryption appears successful.");
-
-                     // 2. Commit: Delete original encrypted file
-                    Console.WriteLine($"  Deleting encrypted source: {Path.GetFileName(sourceEncryptedFilePath)}");
-                     File.Delete(sourceEncryptedFilePath);
-
-                     // 3. Move temporary decrypted file to final destination
-                    Console.WriteLine($"  Moving decrypted file to: {Path.GetFileName(originalFilePath)}");
-                     File.Move(tempDecryptedFile, originalFilePath);
-
-                     decryptedCount++;
-                     Console.WriteLine($" -> Success: {originalFilePath}");
-                }
-                 // Specific SharpAESCrypt errors first
-                catch (SharpAESCrypt.WrongPasswordException ex)
-                {
-                     errorCount++;
-                     PrintOperationError($"Wrong Password/Key.", sourceEncryptedFilePath, ex);
-                 }
-                catch (SharpAESCrypt.PayloadCorruptedException ex)
-                {
-                     errorCount++;
-                     PrintOperationError($"Data Corruption detected.", sourceEncryptedFilePath, ex);
-                }
-                 // IO / System errors
-                 catch (FileNotFoundException ex) { HandleFileException(ex, "File not found during operation", sourceEncryptedFilePath, ref errorCount); }
-                 catch (UnauthorizedAccessException ex) { HandleFileException(ex, "Access Denied", sourceEncryptedFilePath, ref errorCount); }
-                 catch (SecurityException ex) { HandleFileException(ex, "Security Exception", sourceEncryptedFilePath, ref errorCount); }
-                 catch (IOException ex) when (ex.Message.Contains("already exists")) // Catch specific move error
-                {
-                     // This case *should* be caught by our earlier check, but as fallback
-                     errorCount++;
-                     PrintOperationError($"Decrypted file '{originalFilePath}' already exists. Failed to move temp file.", sourceEncryptedFilePath, ex);
-                 }
-                catch (IOException ex) { HandleFileException(ex, "IO Error", sourceEncryptedFilePath, ref errorCount); }
-                // General catch
-                catch (Exception ex)
-                {
-                    errorCount++;
-                     PrintOperationError($"Decryption process failed.", sourceEncryptedFilePath, ex);
-                 }
-                 finally
-                 {
-                    // Cleanup temp decrypted file
-                     CleanupTempFile(tempDecryptedFile);
-                 }
             }
-
-            Console.WriteLine($"--- Decryption Summary ---");
-            Console.WriteLine($"  Files with '{EncryptedFileExtension}' Checked: {filesToDecrypt.Count}");
-             Console.WriteLine($"  Successfully Decrypted: {decryptedCount}");
-            Console.WriteLine($"  Skipped (No {EncryptedFileExtension}): {skippedCount}");
-            Console.WriteLine($"  Errors: {errorCount}");
-             Console.WriteLine($"--------------------------");
         }
+    }
+    catch (CryptographicException)
+    {
+        throw new WrongPasswordException("Invalid password or corrupted file");
+    }
+    catch (Exception ex)
+    {
+        throw new PayloadCorruptedException($"File decryption failed: {ex.Message}");
+    }
+}
+
+
+
+
+private void EnsureFullRead(FileStream stream, byte[] buffer, int bytesToRead)
+{
+    int bytesRead = 0;
+    int remainingBytes = bytesToRead;
+    
+    while (bytesRead < bytesToRead)
+    {
+        int readNow = stream.Read(buffer, bytesRead, remainingBytes);
+        
+        if (readNow == 0) // End of stream reached before reading all bytes
+            throw new PayloadCorruptedException("Unexpected end of file, the encrypted file appears to be corrupted.");
+        
+        bytesRead += readNow;
+        remainingBytes -= readNow;
+    }
+}
+
+private byte[] GenerateRandomSalt()
+{
+    byte[] salt = new byte[32];
+    using (var rng = RandomNumberGenerator.Create())
+    {
+        rng.GetBytes(salt);
+    }
+    return salt;
+}
+
+private byte[] GenerateRandomIV()
+{
+    using (var aes = Aes.Create())
+    {
+        aes.GenerateIV();
+        return aes.IV;
+    }
+}
 
 
         // --- Helper Methods ---
+
+        
 
         private string GetSafeTempDirectory()
         {

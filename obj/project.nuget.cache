@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "pdIx99GjRZU=",
+  "dgSpecHash": "d81qBHhYg0Q=",
   "success": true,
   "projectFilePath": "C:\\Users\\gghaz\\Documents\\VS Code github\\Encryption-malware\\Encryption-malware.csproj",
   "expectedPackageFiles": [
@@ -13,7 +13,12 @@
     "C:\\Users\\gghaz\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\9.0.4\\microsoft.extensions.fileproviders.physical.9.0.4.nupkg.sha512",
     "C:\\Users\\gghaz\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\9.0.4\\microsoft.extensions.filesystemglobbing.9.0.4.nupkg.sha512",
     "C:\\Users\\gghaz\\.nuget\\packages\\microsoft.extensions.primitives\\9.0.4\\microsoft.extensions.primitives.9.0.4.nupkg.sha512",
-    "C:\\Users\\gghaz\\.nuget\\packages\\sharpaescrypt\\2.0.3\\sharpaescrypt.2.0.3.nupkg.sha512"
+    "C:\\Users\\gghaz\\.nuget\\packages\\packetdotnet\\1.4.8\\packetdotnet.1.4.8.nupkg.sha512",
+    "C:\\Users\\gghaz\\.nuget\\packages\\sharpaescrypt\\2.0.3\\sharpaescrypt.2.0.3.nupkg.sha512",
+    "C:\\Users\\gghaz\\.nuget\\packages\\sharppcap\\6.3.0\\sharppcap.6.3.0.nupkg.sha512",
+    "C:\\Users\\gghaz\\.nuget\\packages\\system.memory\\4.5.5\\system.memory.4.5.5.nupkg.sha512",
+    "C:\\Users\\gghaz\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\6.0.0\\system.runtime.compilerservices.unsafe.6.0.0.nupkg.sha512",
+    "C:\\Users\\gghaz\\.nuget\\packages\\system.text.encoding.codepages\\6.0.0\\system.text.encoding.codepages.6.0.0.nupkg.sha512"
   ],
   "logs": []
 }

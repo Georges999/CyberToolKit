@@ -11,6 +11,7 @@ namespace CyberUtils
         private static HoneypotService? _honeypotService; // Nullable
         private static Task? _honeypotTask; // Nullable task tracker
         private static string _currentDirectory = string.Empty;
+        private static IConfigurationRoot? _configuration; // Store configuration
 
         static async Task Main(string[] args) // Main can be async now
         {
@@ -66,10 +67,10 @@ namespace CyberUtils
                     .SetBasePath(Directory.GetCurrentDirectory()) // Expects json in executable directory
                     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true); // Make it non-optional
 
-                IConfigurationRoot configuration = builder.Build();
+                _configuration = builder.Build();
 
                 _appSettings = new AppSettings();
-                configuration.Bind(_appSettings); // Bind JSON structure to our AppSettings class
+                _configuration.Bind(_appSettings); // Bind JSON structure to our AppSettings class
 
                 // ** VERY IMPORTANT SECURITY WARNING **
                 if (_appSettings?.FileOperations?.EncryptionKey == "!!REPLACE_THIS_WITH_A_STRONG_KEY!!")
@@ -190,6 +191,16 @@ namespace CyberUtils
                     case "8": // Select Working Directory
                         SelectWorkingDirectory();
                         break;
+                    case "9": // Packet Sniffer
+                        if (_configuration != null) {
+                            var sec = _configuration.GetSection("PacketSniffer");
+                            string iface = sec["InterfaceName"] ?? "Ethernet";
+                            int duration = int.Parse(sec["CaptureDurationMs"] ?? "5000");
+                            new PacketSnifferService(iface, duration).Run();
+                        } else {
+                            PrintError("Configuration not loaded properly");
+                        }
+                        break;
                     case "0":
                     case "q":
                     case "exit":
@@ -266,6 +277,8 @@ namespace CyberUtils
             Console.WriteLine(" 7. Verify Integrity Against Baseline");
             Console.WriteLine("--- Settings ---");
             Console.WriteLine(" 8. Select Working Directory");
+            Console.WriteLine("--- Advanced Tools ---");
+            Console.WriteLine(" 9. Packet Sniffer");
             Console.WriteLine("-----------------------------");
             Console.WriteLine(" 0. Exit");
             Console.WriteLine("=============================");

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "X7KCrMppqfY=",
+  "dgSpecHash": "Y0m1qkiAm2o=",
   "success": true,
-  "projectFilePath": "C:\\Users\\gghaz\\Documents\\VS Code github\\Encryption-malware\\Encryption-malware.csproj",
+  "projectFilePath": "C:\\Users\\gghaz\\Documents\\windsurf code github\\cybertoolkitWINDSURF\\CyberToolKit\\Encryption-malware.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\gghaz\\.nuget\\packages\\managednativewifi\\2.7.1\\managednativewifi.2.7.1.nupkg.sha512",
     "C:\\Users\\gghaz\\.nuget\\packages\\microsoft.extensions.configuration\\9.0.4\\microsoft.extensions.configuration.9.0.4.nupkg.sha512",

@@ -1,0 +1,33 @@
+<UserControl x:Class="CyberToolKit.FileOperationsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <Button x:Name="EncryptButton" Content="Encrypt All Files" Margin="5" Padding="10,5" Click="EncryptButton_Click"/>
+            <Button x:Name="DecryptButton" Content="Decrypt All Files" Margin="5" Padding="10,5" Click="DecryptButton_Click"/>
+            <Button x:Name="ChangeDirButton" Content="Change Directory" Margin="5" Padding="10,5" Click="ChangeDirButton_Click"/>
+            <Button x:Name="RefreshButton" Content="Refresh" Margin="5" Padding="10,5" Click="RefreshButton_Click"/>
+        </StackPanel>
+
+        <ListView x:Name="FileListView" Grid.Row="1" Background="#2D2D30" Foreground="White" BorderBrush="#3E3E42">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="File Name" Width="500" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Size (Bytes)" Width="150" DisplayMemberBinding="{Binding Size}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <TextBlock x:Name="StatusText" Grid.Row="2" Text="Ready" Foreground="LightGreen" Margin="0,10,0,0"/>
+    </Grid>
+</UserControl>

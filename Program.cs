@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using CyberUtils.Modules;
 using Encryption_malware;
 
+/*
 namespace CyberUtils
 {
     class Program
@@ -16,7 +17,8 @@ namespace CyberUtils
         private static IConfigurationRoot? _configuration;
         private static NmapService? _nmapService;
 
-        static async Task Main(string[] args)
+        /*
+    static async Task Main(string[] args)
         {
             Console.Title = "Cyber Utils Toolkit";
             LoadConfiguration();
@@ -567,4 +569,4 @@ namespace CyberUtils
             Console.ResetColor();
         }
     }
-}
+}*/*/

@@ -7,6 +7,7 @@ namespace CyberUtils
     {
         public FileOperationsSettings FileOperations { get; set; } = new();
         public HoneypotSettings Honeypot { get; set; } = new();
+        public NmapSettings Nmap { get; set; } = new();
         public IntegrityCheckerSettings IntegrityChecker { get; set; } = new();
     }
 
@@ -27,5 +28,10 @@ namespace CyberUtils
     {
         public string BaselineFilePath { get; set; } = "file_integrity_baseline.json";
         public string DirectoryToMonitor { get; set; } = string.Empty;
+    }
+
+    public class NmapSettings
+    {
+        public string NmapPath { get; set; } = "nmap";
     }
 }

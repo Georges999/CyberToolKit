@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using CyberUtils.Modules;
+using Encryption_malware;
 
 namespace CyberUtils
 {
@@ -11,8 +12,9 @@ namespace CyberUtils
         private static AppSettings? _appSettings;
         private static HoneypotService? _honeypotService;
         private static Task? _honeypotTask;
-        private static string _currentDirectory = string.Empty;
+                private static string _currentDirectory = string.Empty;
         private static IConfigurationRoot? _configuration;
+        private static NmapService? _nmapService;
 
         static async Task Main(string[] args)
         {
@@ -43,8 +45,18 @@ namespace CyberUtils
             try { _honeypotService = new HoneypotService(_appSettings.Honeypot); }
             catch (ArgumentException ex) { PrintError($"Honeypot setup failed: {ex.Message}"); }
 
-            try { integrityCheckerService = new IntegrityCheckerService(_appSettings.IntegrityChecker); }
+                        try { integrityCheckerService = new IntegrityCheckerService(_appSettings.IntegrityChecker); }
             catch (ArgumentException ex) { PrintError($"Integrity Checker setup failed: {ex.Message}"); }
+
+            try
+            {
+                _nmapService = new NmapService(_appSettings.Nmap);
+                Console.WriteLine("Nmap service initialized.");
+            }
+            catch (Exception)
+            {
+                PrintError("Nmap service setup failed. Ensure Nmap is installed and in your system's PATH.");
+            }
 
             // Main application loop for dashboard
             await RunDashboardLoop(fileOpsService, integrityCheckerService);
@@ -417,6 +429,42 @@ namespace CyberUtils
                         }
                         break;
                         
+                                        case "11": // Nmap Scan
+                        if (_nmapService != null)
+                        {
+                            Console.Write("Enter target (e.g., scanme.nmap.org, 192.168.1.1): ");
+                            string? target = Console.ReadLine();
+                            if (!string.IsNullOrWhiteSpace(target))
+                            {
+                                Console.Write("Enter Nmap arguments (or press Enter for default -sV -T4): ");
+                                string? nmapArgs = Console.ReadLine();
+                                if (string.IsNullOrWhiteSpace(nmapArgs)) nmapArgs = "-sV -T4";
+
+                                Console.WriteLine($"\n[+] Running Nmap scan on {target} with arguments '{nmapArgs}'...");
+                                try
+                                {
+                                    var result = await _nmapService.RunScanAsync(target, nmapArgs);
+                                    Console.ForegroundColor = ConsoleColor.Cyan;
+                                    Console.WriteLine("\n--- Nmap Scan Results ---");
+                                    Console.WriteLine(result.ToString());
+                                    Console.ResetColor();
+                                }
+                                catch (Exception ex)
+                                {
+                                    PrintError($"Nmap scan failed: {ex.Message}");
+                                }
+                            }
+                            else
+                            {
+                                PrintWarning("No target entered. Scan cancelled.");
+                            }
+                        }
+                        else
+                        {
+                            PrintError("Nmap service not initialized.");
+                        }
+                        break;
+
                     case "0":
                     case "q":
                     case "exit":
@@ -496,7 +544,8 @@ namespace CyberUtils
             Console.WriteLine(" 8. Select Working Directory");
             Console.WriteLine("--- Advanced Tools ---");
             Console.WriteLine(" 9. Packet Sniffer");
-            Console.WriteLine("10. WiFi Honeypot");
+                        Console.WriteLine("10. WiFi Honeypot");
+            Console.WriteLine("11. Nmap Scan - Network Reconnaissance");
             Console.WriteLine("-----------------------------");
             Console.WriteLine(" 0. Exit");
             Console.WriteLine("=============================");

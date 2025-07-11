@@ -253,7 +253,7 @@ namespace Encryption_malware
                 // Advanced evasion techniques
                 ScanType.AntiForensicScan => "-sS -f -mtu 24 -T1 -D RND:10 --source-port 53 --spoof-mac 0",
                 ScanType.FirewallEvasion => "-sA -f --mtu 24 -T2 --source-port 53 --data-length 25",
-                ScanType.IdleZombieScan => "-sI zombie_host -T2 -p 1-1000",
+                ScanType.IdleZombieScan => !string.IsNullOrWhiteSpace(customArgs) ? customArgs : "-sI zombie_host -T2 -p 1-1000",
                 ScanType.FragmentationScan => "-sS -f -ff -T2 --scan-delay 1s",
                 ScanType.DecoyNetworkScan => "-sS -D RND:15 -T3 --randomize-hosts",
                 ScanType.SlowComprehensiveScan => "-sS -sV -sC -T1 -p- --scan-delay 2s --max-parallelism 1",
@@ -282,10 +282,27 @@ namespace Encryption_malware
                             !IPAddress.IsLoopback(unicastAddress.Address))
                         {
                             var ip = unicastAddress.Address.ToString();
-                            if (ip.StartsWith("192.168.") || ip.StartsWith("10.") || ip.StartsWith("172."))
+                            var parts = ip.Split('.');
+                            
+                            if (parts.Length == 4 && int.TryParse(parts[0], out int firstOctet) && 
+                                int.TryParse(parts[1], out int secondOctet))
                             {
-                                var parts = ip.Split('.');
-                                return $"{parts[0]}.{parts[1]}.{parts[2]}.0/24";
+                                // RFC 1918 private IP ranges with appropriate subnet assumptions
+                                if (firstOctet == 10)
+                                {
+                                    // 10.0.0.0/8 - Class A private network
+                                    return $"{parts[0]}.{parts[1]}.{parts[2]}.0/24";
+                                }
+                                else if (firstOctet == 172 && secondOctet >= 16 && secondOctet <= 31)
+                                {
+                                    // 172.16.0.0/12 - Class B private network (172.16.x.x to 172.31.x.x)
+                                    return $"{parts[0]}.{parts[1]}.{parts[2]}.0/24";
+                                }
+                                else if (firstOctet == 192 && secondOctet == 168)
+                                {
+                                    // 192.168.0.0/16 - Class C private network
+                                    return $"{parts[0]}.{parts[1]}.{parts[2]}.0/24";
+                                }
                             }
                         }
                     }

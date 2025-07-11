@@ -1243,6 +1243,7 @@ address=/#/{_settings.NetworkSettings.RedirectIp}";
                             client.Value.DisconnectedTimestamp = DateTime.UtcNow;
                             disconnectedClients.Add(client.Key);
                         }
+                        
                     }
                     
                     // Remove disconnected clients

@@ -429,39 +429,21 @@ namespace CyberUtils
                         }
                         break;
                         
-                                        case "11": // Nmap Scan
+                    case "11": // Advanced Nmap Reconnaissance
                         if (_nmapService != null)
                         {
-                            Console.Write("Enter target (e.g., scanme.nmap.org, 192.168.1.1): ");
-                            string? target = Console.ReadLine();
-                            if (!string.IsNullOrWhiteSpace(target))
+                            try
                             {
-                                Console.Write("Enter Nmap arguments (or press Enter for default -sV -T4): ");
-                                string? nmapArgs = Console.ReadLine();
-                                if (string.IsNullOrWhiteSpace(nmapArgs)) nmapArgs = "-sV -T4";
-
-                                Console.WriteLine($"\n[+] Running Nmap scan on {target} with arguments '{nmapArgs}'...");
-                                try
-                                {
-                                    var result = await _nmapService.RunScanAsync(target, nmapArgs);
-                                    Console.ForegroundColor = ConsoleColor.Cyan;
-                                    Console.WriteLine("\n--- Nmap Scan Results ---");
-                                    Console.WriteLine(result.ToString());
-                                    Console.ResetColor();
-                                }
-                                catch (Exception ex)
-                                {
-                                    PrintError($"Nmap scan failed: {ex.Message}");
-                                }
+                                await _nmapService.RunInteractiveScanAsync();
                             }
-                            else
+                            catch (Exception ex)
                             {
-                                PrintWarning("No target entered. Scan cancelled.");
+                                PrintError($"Nmap reconnaissance failed: {ex.Message}");
                             }
                         }
                         else
                         {
-                            PrintError("Nmap service not initialized.");
+                            PrintError("Nmap service not initialized. Ensure Nmap is installed and in your system's PATH.");
                         }
                         break;
 
@@ -545,7 +527,7 @@ namespace CyberUtils
             Console.WriteLine("--- Advanced Tools ---");
             Console.WriteLine(" 9. Packet Sniffer");
                         Console.WriteLine("10. WiFi Honeypot");
-            Console.WriteLine("11. Nmap Scan - Network Reconnaissance");
+            Console.WriteLine("11. Advanced Network Reconnaissance (Nmap)");
             Console.WriteLine("-----------------------------");
             Console.WriteLine(" 0. Exit");
             Console.WriteLine("=============================");

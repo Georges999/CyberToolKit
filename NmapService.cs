@@ -22,7 +22,17 @@ namespace Encryption_malware
         ComprehensiveScan,
         WebServerScan,
         DatabaseScan,
-        CustomScan
+        CustomScan,
+        // New advanced evasion scan types
+        AntiForensicScan,
+        FirewallEvasion,
+        IdleZombieScan,
+        FragmentationScan,
+        DecoyNetworkScan,
+        SlowComprehensiveScan,
+        UDPScan,
+        WindowsScan,
+        UnixScan
     }
 
     public class NmapService
@@ -59,7 +69,7 @@ namespace Encryption_malware
             while (true)
             {
                 DisplayScanMenu();
-                Console.Write("Select scan type (1-11, or 0 to exit): ");
+                Console.Write("Select scan type (1-20, or 0 to exit): ");
                 
                 if (!int.TryParse(Console.ReadLine(), out int choice))
                 {
@@ -90,6 +100,18 @@ namespace Encryption_malware
             Console.WriteLine(" 9. Database Discovery (Database services)");
             Console.WriteLine("10. Network Sweep (Entire subnet)");
             Console.WriteLine("11. Custom Scan (Enter your own options)");
+            Console.WriteLine();
+            Console.WriteLine("=== ADVANCED EVASION SCANS ===");
+            Console.WriteLine("12. Anti-Forensic Scan (Maximum stealth)");
+            Console.WriteLine("13. Firewall Evasion (Bypass firewalls)");
+            Console.WriteLine("14. Idle Zombie Scan (Use zombie host)");
+            Console.WriteLine("15. Fragmentation Scan (Fragment packets)");
+            Console.WriteLine("16. Decoy Network Scan (Use decoy hosts)");
+            Console.WriteLine("17. Slow Comprehensive (Avoid detection)");
+            Console.WriteLine("18. UDP Scan (UDP services)");
+            Console.WriteLine("19. Windows Target Scan (Windows-specific)");
+            Console.WriteLine("20. Unix Target Scan (Unix/Linux-specific)");
+            Console.WriteLine();
             Console.WriteLine(" 0. Exit");
             Console.WriteLine();
         }
@@ -128,6 +150,25 @@ namespace Encryption_malware
                     Console.Write("Enter custom Nmap arguments: ");
                     customArgs = Console.ReadLine() ?? "";
                     break;
+                // Advanced evasion scans
+                case 12: scanType = ScanType.AntiForensicScan; break;
+                case 13: scanType = ScanType.FirewallEvasion; break;
+                case 14: 
+                    scanType = ScanType.IdleZombieScan;
+                    Console.Write("Enter zombie host IP (or press Enter for auto-detect): ");
+                    string zombieHost = Console.ReadLine()?.Trim();
+                    if (!string.IsNullOrEmpty(zombieHost))
+                    {
+                        // Replace zombie_host placeholder with actual IP
+                        customArgs = $"-sI {zombieHost} -T2 -p 1-1000";
+                    }
+                    break;
+                case 15: scanType = ScanType.FragmentationScan; break;
+                case 16: scanType = ScanType.DecoyNetworkScan; break;
+                case 17: scanType = ScanType.SlowComprehensiveScan; break;
+                case 18: scanType = ScanType.UDPScan; break;
+                case 19: scanType = ScanType.WindowsScan; break;
+                case 20: scanType = ScanType.UnixScan; break;
                 default:
                     Console.WriteLine("Invalid choice.");
                     return;
@@ -209,6 +250,16 @@ namespace Encryption_malware
                 ScanType.WebServerScan => "-sV -sC -p 80,443,8080,8443,8000,8888 --script http-*",
                 ScanType.DatabaseScan => "-sV -sC -p 1433,3306,5432,1521,27017 --script *sql*,*mysql*,*oracle*",
                 ScanType.CustomScan => !string.IsNullOrWhiteSpace(customArgs) ? customArgs : "-sV -T4",
+                // Advanced evasion techniques
+                ScanType.AntiForensicScan => "-sS -f -mtu 24 -T1 -D RND:10 --source-port 53 --spoof-mac 0",
+                ScanType.FirewallEvasion => "-sA -f --mtu 24 -T2 --source-port 53 --data-length 25",
+                ScanType.IdleZombieScan => "-sI zombie_host -T2 -p 1-1000",
+                ScanType.FragmentationScan => "-sS -f -ff -T2 --scan-delay 1s",
+                ScanType.DecoyNetworkScan => "-sS -D RND:15 -T3 --randomize-hosts",
+                ScanType.SlowComprehensiveScan => "-sS -sV -sC -T1 -p- --scan-delay 2s --max-parallelism 1",
+                ScanType.UDPScan => "-sU -T4 --top-ports 1000",
+                ScanType.WindowsScan => "-sS -O -sV -sC -p 135,139,445,3389,1433,5985,5986 --script smb-*,rdp-*,ms-sql-*",
+                ScanType.UnixScan => "-sS -O -sV -sC -p 22,23,25,53,80,110,143,443,993,995 --script ssh-*,ftp-*,smtp-*",
                 _ => "-sV -T4"
             };
         }
@@ -309,44 +360,96 @@ namespace Encryption_malware
         {
             string analysis = port.PortId switch
             {
-                22 => "SSH server - Remote administration available",
-                23 => "Telnet - INSECURE remote administration",
-                25 => "SMTP - Mail server",
-                53 => "DNS - Domain name resolution",
-                80 => "HTTP - Web server (check for admin panels)",
-                135 => "RPC - Windows RPC service",
-                139 => "NetBIOS - Windows file sharing",
-                143 => "IMAP - Email server",
-                443 => "HTTPS - Secure web server",
-                445 => "SMB - Windows file sharing",
-                993 => "IMAPS - Secure email",
-                995 => "POP3S - Secure email",
-                1433 => "MSSQL - Microsoft SQL Server",
-                3306 => "MySQL - Database server",
-                3389 => "RDP - Remote Desktop Protocol",
-                5432 => "PostgreSQL - Database server",
-                5900 => "VNC - Remote desktop access",
-                8080 => "HTTP-Alt - Alternative web server",
-                8443 => "HTTPS-Alt - Alternative secure web server",
+                21 => "FTP - File Transfer Protocol (Try anonymous login, brute force)",
+                22 => "SSH - Secure Shell (Try default credentials, brute force, check for weak keys)",
+                23 => "Telnet - INSECURE remote administration (Easy to intercept credentials)",
+                25 => "SMTP - Mail server (Check for open relay, user enumeration)",
+                53 => "DNS - Domain name resolution (Try zone transfer, DNS enumeration)",
+                80 => "HTTP - Web server (Check for admin panels, directory traversal, SQL injection)",
+                110 => "POP3 - Email retrieval (Try brute force, check for clear text auth)",
+                135 => "RPC - Windows RPC service (Potential for MS-RPC exploits)",
+                139 => "NetBIOS - Windows file sharing (SMB enumeration, null sessions)",
+                143 => "IMAP - Email server (Try brute force, check for clear text auth)",
+                443 => "HTTPS - Secure web server (Check SSL/TLS config, web vulnerabilities)",
+                445 => "SMB - Windows file sharing (Null sessions, SMB exploits, shares enumeration)",
+                993 => "IMAPS - Secure email (Check SSL/TLS config)",
+                995 => "POP3S - Secure email (Check SSL/TLS config)",
+                1433 => "MSSQL - Microsoft SQL Server (Try sa account, SQL injection, xp_cmdshell)",
+                1521 => "Oracle - Database server (Try default accounts, TNS enumeration)",
+                3306 => "MySQL - Database server (Try root account, check for weak passwords)",
+                3389 => "RDP - Remote Desktop Protocol (Try brute force, check for weak encryption)",
+                5432 => "PostgreSQL - Database server (Try postgres account, check for weak passwords)",
+                5900 => "VNC - Remote desktop access (Often no password or weak password)",
+                5985 => "WinRM HTTP - Windows Remote Management (Try brute force, check for weak auth)",
+                5986 => "WinRM HTTPS - Windows Remote Management (Check SSL/TLS config)",
+                8080 => "HTTP-Alt - Alternative web server (Check for management interfaces)",
+                8443 => "HTTPS-Alt - Alternative secure web server (Check SSL/TLS config)",
+                27017 => "MongoDB - NoSQL database (Often no authentication, data exposure)",
                 _ => null
             };
 
             if (!string.IsNullOrEmpty(analysis))
             {
                 Console.WriteLine($"        Analysis: {analysis}");
+                
+                // Add specific attack suggestions based on service and version
+                if (port.Service?.Product != null)
+                {
+                    string attackSuggestions = GetAttackSuggestions(port);
+                    if (!string.IsNullOrEmpty(attackSuggestions))
+                    {
+                        Console.WriteLine($"        Attack Vectors: {attackSuggestions}");
+                    }
+                }
             }
 
-            // Web server detection
+            // Web server detection with more details
             if (IsWebPort(port.PortId))
             {
                 string protocol = port.PortId == 443 || port.PortId == 8443 ? "https" : "http";
                 Console.WriteLine($"        Web URL: {protocol}://{ipAddress}:{port.PortId}");
+                Console.WriteLine($"        Recommended: Directory enumeration, vulnerability scanning");
             }
+            
+            // Database server detection
+            if (IsDatabasePort(port.PortId))
+            {
+                Console.WriteLine($"        Database Target: {ipAddress}:{port.PortId}");
+                Console.WriteLine($"        Recommended: Credential attacks, privilege escalation");
+            }
+        }
+
+        private string GetAttackSuggestions(Port port)
+        {
+            var product = port.Service?.Product?.ToLower() ?? "";
+            var version = port.Service?.Version?.ToLower() ?? "";
+            
+            // Check for known vulnerable versions
+            if (product.Contains("openssh") && version.Contains("7.4"))
+                return "OpenSSH 7.4 - Check for user enumeration vulnerability";
+            if (product.Contains("apache") && version.Contains("2.2"))
+                return "Apache 2.2 - Check for mod_ssl vulnerabilities";
+            if (product.Contains("iis") && version.Contains("6.0"))
+                return "IIS 6.0 - Check for WebDAV vulnerabilities";
+            if (product.Contains("vsftpd") && version.Contains("2.3.4"))
+                return "vsftpd 2.3.4 - BACKDOOR VULNERABILITY!";
+            if (product.Contains("mysql") && version.Contains("5.0"))
+                return "MySQL 5.0 - Check for privilege escalation";
+            if (product.Contains("samba") && version.Contains("3.0"))
+                return "Samba 3.0 - Check for username map script vulnerability";
+                
+            return "";
+        }
+
+        private bool IsDatabasePort(int port)
+        {
+            return port == 1433 || port == 3306 || port == 5432 || port == 1521 || port == 27017;
         }
 
         private bool IsWebPort(int port)
         {
-            return port == 80 || port == 443 || port == 8080 || port == 8443 || port == 8000 || port == 8888;
+            return port == 80 || port == 443 || port == 8080 || port == 8443 || port == 8000 || port == 8888 || 
+                   port == 3000 || port == 4000 || port == 5000 || port == 9000 || port == 9090 || port == 9443;
         }
 
         private void DisplayScanSummary(NmapScanResult result, ScanType scanType)
